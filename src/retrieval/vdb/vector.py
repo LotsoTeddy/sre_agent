@@ -5,6 +5,7 @@ from enum import Enum
 
 
 class KnowledgeBaseVector(ABC):
+    name: str
     def __init__(
             self,
             collection_name: str
@@ -30,17 +31,8 @@ class KnowledgeBaseVector(ABC):
     @property
     def collection_name(self):
         return self._collection_name
-
     @abstractmethod
-    def search_by_full_text(self, query: str, **kwargs: Any) -> list[Document]:
-        raise NotImplementedError
-
-    @abstractmethod
-    def search_by_vector(self, query_vector: list[float], **kwargs: Any) -> list[Document]:
-        raise NotImplementedError
-
-    @abstractmethod
-    def search_by_keyword(self, query: str, **kwargs: Any) -> list[Document]:
+    def search_by_vector(self, query_vector: list[float], **kwargs: Any) -> list[str]:
         raise NotImplementedError
 
     @abstractmethod
@@ -56,10 +48,11 @@ def register_vector(cls: Type[KnowledgeBaseVector]):
     return cls
 
 
-def generate_vector(name: str) -> KnowledgeBaseVector:
-    return CLS_TO_VECTOR[name]
+def generate_vector(name: str, collection_name: str) -> KnowledgeBaseVector:
+    return CLS_TO_VECTOR[name](collection_name)
 
 
 class VectorType(Enum):
     ELASTICSEARCH = 'elasticsearch'
     OPENSEARCH = 'opensearch'
+    CHROMA = 'chroma'
