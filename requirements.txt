@@ -1,5 +1,5 @@
 chromadb
 opensearch-py==2.8.0
 python-dotenv==1.1.0
-litellm==1.67.2
+litellm==1.71.1
 google-adk==1.0.0

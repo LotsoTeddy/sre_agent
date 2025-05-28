@@ -1,11 +1,10 @@
+
 import os
 import json
 from typing import Any, Dict
 
 from google.adk.agents import LlmAgent
 from google.adk.models.lite_llm import LiteLlm
-from google.adk.runners import Runner
-from google.adk.sessions import InMemorySessionService
 from google.adk.tools.base_tool import BaseTool
 from google.adk.tools.mcp_tool.mcp_toolset import (
     MCPToolset,
@@ -17,7 +16,6 @@ from google.genai import types
 
 MODEL_PROVIDER = "openai"
 REASONING_MODEL = os.getenv("ARK_REASONING_MODEL")
-
 API_BASE = os.getenv("ARK_API_BASE")
 API_KEY = os.getenv("ARK_API_KEY")
 
@@ -42,7 +40,7 @@ def simple_before_tool_modifier(
     return None
 
 
-async def aget_sre_agent():
+async def aget_sre_agent() -> tuple[LlmAgent, MCPToolset]:
     ECS_SERVICE_URL = os.getenv("ECS_SERVICE_URL")
     assert ECS_SERVICE_URL is not None
 
@@ -51,7 +49,8 @@ async def aget_sre_agent():
             url=ECS_SERVICE_URL,
         )
     )
-    return LlmAgent(
+
+    agent = LlmAgent(
         name="sre_agent",
         model=create_reasoning_model(),
         description="You can use mcp tools to run commands on remote ECS.",
@@ -59,4 +58,6 @@ async def aget_sre_agent():
         tools=[tools],
         before_tool_callback=simple_before_tool_modifier,
     )
+
+    return agent, tools
 
