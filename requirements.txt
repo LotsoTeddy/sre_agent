@@ -1,0 +1,3 @@
+arkitect==0.2.3 --index-url https://pypi.org/simple
+chromadb
+opensearch-py==2.8.0
