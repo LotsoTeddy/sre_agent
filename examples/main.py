@@ -1,22 +1,34 @@
+import asyncio
+import inspect
 import json
 
+from arkitect.core.component.context.context import Context
+from arkitect.core.component.tool.mcp_client import MCPClient
 from examples.prompts import CEA_SYSTEM_PROMPT, IUA_SYSTEM_PROMPT, RAA_SYSTEM_PROMPT
 from src.knowledgebase import KnowledgeBase
 from src.memory import LongTermMemory, ShortTermMemory
 from src.SREAgent import SREAgent
+from src.utils.misc import filter_log
 
-DEFAULT_LLM = "doubao-1.5-pro-32k-250115"
+filter_log()
+
+DEFAULT_LLM = "doubao-1-5-pro-256k-250115"
 
 APP_NAME = "Intelligent SRE"
 USER_ID = "SREer"
+
+MCP_INFO = ""
+mcp_client = MCPClient(
+    name="ecs_mcp_client",
+    server_url=MCP_INFO,
+)
+
 
 agent_configs = [
     {
         "name": "Intention Understanding Agent",
         "description": "An agent that understand the user's intention",
         "instruction": IUA_SYSTEM_PROMPT,
-        "model": DEFAULT_LLM,
-        "tools": [],
         "knowledgebase": None,
         "short_term_memory": ShortTermMemory(
             app_name=APP_NAME, user_id=USER_ID, session_id=0
@@ -29,8 +41,6 @@ agent_configs = [
         "name": "Risk Analyzer Agent",
         "description": "An agent that analyze the risk of the command",
         "instruction": RAA_SYSTEM_PROMPT,
-        "model": DEFAULT_LLM,
-        "tools": [],
         "knowledgebase": None,
         "short_term_memory": ShortTermMemory(
             app_name=APP_NAME, user_id=USER_ID, session_id=1
@@ -43,8 +53,6 @@ agent_configs = [
         "name": "Command Executor Agent",
         "description": "An agent that execute the command",
         "instruction": CEA_SYSTEM_PROMPT,
-        "model": DEFAULT_LLM,
-        "tools": [],
         "knowledgebase": None,
         "short_term_memory": ShortTermMemory(
             app_name=APP_NAME, user_id=USER_ID, session_id=2
@@ -56,28 +64,21 @@ agent_configs = [
 ]
 
 
-def main(prompt: str):
-    agents = [
-        SREAgent(**agent_configs[0]),
-        SREAgent(**agent_configs[1]),
-        SREAgent(**agent_configs[2]),
-    ]
+async def main(prompt: str):
+    # model = Context(model=DEFAULT_LLM, tools=[])
+    # await model.init()
 
-    print(f"The initial prompt is: {prompt}")
+    model_mcp = Context(model=DEFAULT_LLM, tools=[mcp_client])
+    await model_mcp.init()
 
-    command = agents[0].run(prompt)
-    print(f"The command is: {command}")
+    agent = SREAgent(**agent_configs[2], model=model_mcp)
 
-    risk_detection = agents[1].run(command)
-    risk_detection = json.loads(risk_detection)
-    if risk_detection["is_high_risk"]:
-        print(f"The command is high risk: {risk_detection['reason']}")
-        return
+    response = await agent.run(prompt)
+    print(response)
 
-    print(f"The command is low risk, continue to execute.")
-    command_result = agents[2].run(command)
-    print(f"The command result is: {command_result}")
+    await mcp_client.cleanup()
 
 
 if __name__ == "__main__":
-    main("Tell me the CPU usage")
+    prompt = ""
+    asyncio.run(main(prompt))

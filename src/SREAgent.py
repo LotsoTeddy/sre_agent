@@ -1,7 +1,6 @@
 import asyncio
 
-from arkitect.core.component.context.context import Context
-from numpy import short
+from arkitect.core.component.tool.mcp_client import MCPClient
 from src.knowledgebase import KnowledgeBase
 from src.memory import LongTermMemory, Session, ShortTermMemory
 from volcenginesdkarkruntime import Ark
@@ -13,8 +12,7 @@ class SREAgent:
         name: str,
         description: str,
         instruction: str,
-        model: str,
-        tools: list,
+        model,
         knowledgebase: KnowledgeBase = None,
         short_term_memory: ShortTermMemory = None,
         long_term_memory: LongTermMemory = None,
@@ -23,7 +21,7 @@ class SREAgent:
         self.description = description
         self.instruction = instruction
 
-        self.agent = self._init_ark_agent(model=model, tools=tools)
+        self.model = model
 
         self.knowledgebase = knowledgebase
 
@@ -38,12 +36,7 @@ class SREAgent:
             }
         )
 
-    def _init_ark_agent(self, model: str, tools: list):
-        ctx = Context(model=model, tools=tools)
-        asyncio.run(ctx.init())
-        return ctx
-
-    def run(self, prompt: str):
+    async def run(self, prompt: str):
         documents = self.search(prompt)
         if documents != []:
             prompt = f"{prompt} \n The references are: {documents}"
@@ -51,8 +44,8 @@ class SREAgent:
         message = {"role": "user", "content": prompt}
         self.session.add(message=message)
 
-        response = asyncio.run(
-            self.agent.completions.create(messages=self.session.get(), stream=False)
+        response = await self.model.completions.create(
+            messages=self.session.get(), stream=False
         )
         self.session.add(response.choices[0].message.dict())
 
