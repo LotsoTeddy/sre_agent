@@ -64,7 +64,7 @@ agent_configs = [
 ]
 
 
-async def main(prompt: str):
+async def main(prompts: list[str]):
     # model = Context(model=DEFAULT_LLM, tools=[])
     # await model.init()
 
@@ -73,12 +73,17 @@ async def main(prompt: str):
 
     agent = SREAgent(**agent_configs[2], model=model_mcp)
 
-    response = await agent.run(prompt)
-    print(response)
+    for prompt in prompts:
+        response = await agent.run(prompt)
+        print(response)
+        print("\n"*3)
 
     await mcp_client.cleanup()
 
 
 if __name__ == "__main__":
-    prompt = ""
+    prompt = [
+        ""
+        ]
+
     asyncio.run(main(prompt))

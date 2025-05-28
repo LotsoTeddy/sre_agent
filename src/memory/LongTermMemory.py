@@ -9,4 +9,4 @@ class LongTermMemory(BaseMemory):
         pass
 
     def search(self, query: str, top_k: int = 3):
-        pass
+        return []

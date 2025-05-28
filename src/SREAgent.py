@@ -1,6 +1,7 @@
 import asyncio
 
 from arkitect.core.component.tool.mcp_client import MCPClient
+from arkitect.core.component.context.context import Context
 from src.knowledgebase import KnowledgeBase
 from src.memory import LongTermMemory, Session, ShortTermMemory
 from volcenginesdkarkruntime import Ark
@@ -12,7 +13,7 @@ class SREAgent:
         name: str,
         description: str,
         instruction: str,
-        model,
+        model: Context,
         knowledgebase: KnowledgeBase = None,
         short_term_memory: ShortTermMemory = None,
         long_term_memory: LongTermMemory = None,
@@ -47,8 +48,8 @@ class SREAgent:
         response = await self.model.completions.create(
             messages=self.session.get(), stream=False
         )
-        self.session.add(response.choices[0].message.dict())
-
+        # self.session.add(response.choices[0].message.dict())
+        self.session.add({"role": "assistant", "content":response.choices[0].message.content })
         return response.choices[0].message.content
 
     def search(self, query: str, top_k: int = 3) -> list[str]:
@@ -61,29 +62,23 @@ class SREAgent:
             [
                 self.short_term_memory is None,
                 self.long_term_memory is None,
-                self.knowledgebase is None,
+                # self.knowledgebase is None,
             ]
         ):
             return []
 
-        embeded_query = []
-        embedding_client = Ark()
-        response = embedding_client.embeddings.create(
-            model="doubao-embedding-text-240715", input=[embeded_query]
-        )
-        embeded_query = [response.data[i].embedding for i in range(len(response.data))]
 
         documents = []
         if self.short_term_memory is not None:
-            res = self.short_term_memory.search(embeded_query, top_k)
+            res = self.short_term_memory.search(query, top_k)
             documents.extend(res)
 
         if self.long_term_memory is not None:
-            res = self.long_term_memory.search(embeded_query, top_k)
+            res = self.long_term_memory.search(query, top_k)
             documents.extend(res)
 
-        if self.knowledgebase is not None:
-            res = self.knowledgebase.search(embeded_query, top_k)
-            documents.extend(res)
+        # if self.knowledgebase is not None:
+        #     res = self.knowledgebase.search(query, top_k)
+        #     documents.extend(res)
 
         return documents

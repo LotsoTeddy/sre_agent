@@ -19,11 +19,11 @@ class ShortTermMemory(BaseMemory):
         session_id: str
     ):
         super().__init__(app_name=app_name, user_id=user_id, session_id=session_id)
-        self._vector = generate_vector(VectorType.CHROMA.value, collection_name="shot_term_memory")
+        # fixme: 检查app_name等是否合规
+        self._vector = generate_vector(VectorType.CHROMA.value, collection_name="test_short_term_memory")
         self._embedding = ArkEmbeddings()
 
     def add(self, message: str):
-
         self._vector.create(
             texts=[
                 Document(
