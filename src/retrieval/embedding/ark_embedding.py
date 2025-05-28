@@ -8,7 +8,7 @@ class ArkEmbeddings(Embeddings):
     def __init__(
             self,
             model: str = os.getenv("ARK_EMBEDDING_MODEL"),
-            api_base: str = os.getenv("ARK_EMBEDDING_API_BASE"),
+            api_base: str = os.getenv("ARK_API_BASE"),
             api_key: str = os.getenv("ARK_API_KEY"),
     ):
         assert model is not None

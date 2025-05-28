@@ -1,4 +1,4 @@
-from src.knowledgebase.KnowledgeBase import KnowledgeBase
+from src.knowledgebase.knowledge_base import KnowledgeBase
 
 __all__ = [
     "KnowledgeBase",

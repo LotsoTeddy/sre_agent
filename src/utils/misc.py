@@ -1,4 +1,4 @@
-def filter_log():
+def filter():
     import logging
     import warnings
 

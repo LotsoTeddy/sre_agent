@@ -1,4 +1,5 @@
-arkitect==0.2.3 --index-url https://pypi.org/simple
 chromadb
 opensearch-py==2.8.0
 python-dotenv==1.1.0
+litellm==1.67.2
+google-adk==1.0.0
