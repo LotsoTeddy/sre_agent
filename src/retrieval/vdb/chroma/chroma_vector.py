@@ -38,7 +38,10 @@ class ChromaVector(KnowledgeBaseVector):
         pass
 
     def collection_exist(self) -> bool:
-        pass
+        # 获取所有集合的名称
+        collection_names = [collection.name for collection in self._client.list_collections()]
+        # 检查目标集合名称是否在其中
+        return self._collection_name in collection_names
 
     def search_by_vector(self, query_vector: list[float], **kwargs: Any) -> list[str]:
         top_k = kwargs.get("top_k", 5)

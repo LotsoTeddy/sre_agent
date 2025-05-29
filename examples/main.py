@@ -11,6 +11,7 @@ from google.genai import types
 from src.memory.vdb_memory import VdbMemory
 from src.retrieval.vdb import VectorType
 from src.sre_agent import aget_sre_agent
+from src.tools.kb_tools import prepare_data
 from src.utils.misc import filter
 filter()
 from src.utils.logger import get_logger
@@ -20,7 +21,9 @@ APP_NAME = "ecs_app"            # 由于memory用到opensearch或者chroma，而
 USER_ID = "user_01"             # 故app-name和user-id目前仅限使用数字+小写字母+连字符+下划线，且首尾为小写字母或数字
 SESSION_ID = "session_01"
 
-
+def prepare():
+    prepare_data("risky_comands.txt")
+    logger.info("risky commands 加载成功")
 
 async def run(prompts: list[str]):
     agent, tools = await aget_sre_agent()
@@ -67,15 +70,18 @@ async def run(prompts: list[str]):
 if __name__ == "__main__":
     # export PYTHONPATH=.
     # python examples/main.py
-
+    # 事先存储知识库
+    prepare()
 
     # 第0次会话，体现long term memory能力
+    logger.info("\n第0次操作")
     prompts = [
 
     ]
     asyncio.run(run(prompts))
 
-    # 第二次对话
+    # 正式对话
+    logger.info("\n正式操作")
     prompts = [
 
     ]

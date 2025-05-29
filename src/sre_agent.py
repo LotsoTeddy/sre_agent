@@ -14,6 +14,7 @@ from google.adk.tools.mcp_tool.mcp_toolset import (
 from google.adk.tools.tool_context import ToolContext
 from google.genai import types
 from google.adk.tools import load_memory
+from src.tools.kb_tools import search_risk_operation
 from src.utils.times import get_current_time
 
 MODEL_PROVIDER = "openai"
@@ -47,7 +48,9 @@ AGENT_INSTRUCTION=f"""You are an assistant using MCP tools to execute commands o
 **Operation Execution Rule:**
 1. **Historical Operation Check**  
    - Before executing any command:  
-     - Load operation history from the memory (load_memory tools) (MUST EVERY TIME)
+     - (MUST EVERY TIME) Load operation history from the memory (`load_memory` tools)
+     - (MUST EVERY TIME) Use the `search_risk_operation` method to assist in the judgment, check whether this command is a high-risk operation. You can 
+        - Of course, if you think a certain command is a high-risk operation but cannot find it here, you can also choose not to execute it and ask for further instructions.
      - Check if the **exact same command** has been executed by the same user on the **same target instance**  
    
 2. **Execution Decision:**  
@@ -85,7 +88,7 @@ async def aget_sre_agent() -> tuple[LlmAgent, MCPToolset]:
         model=create_reasoning_model(),
         description=AGENT_DESCRIPTION,
         instruction=AGENT_INSTRUCTION,
-        tools=[tools,load_memory],
+        tools=[tools,load_memory,search_risk_operation],
         before_tool_callback=simple_before_tool_modifier,
     )
 

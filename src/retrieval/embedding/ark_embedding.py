@@ -2,8 +2,8 @@ import os
 import requests
 import json
 from src.retrieval.embedding.base_embedding import Embeddings
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
 class ArkEmbeddings(Embeddings):
     def __init__(
