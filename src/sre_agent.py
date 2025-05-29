@@ -89,7 +89,7 @@ async def aget_sre_agent(system_prompt: str=AGENT_INSTRUCTION) -> tuple[LlmAgent
         description=AGENT_DESCRIPTION,
         instruction=system_prompt,
         tools=[tools,load_memory_tool,search_risk_operation],
-        before_tool_callback=simple_before_tool_modifier,
+        # before_tool_callback=simple_before_tool_modifier,
     )
 
     return agent, tools
