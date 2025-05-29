@@ -14,20 +14,18 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 from google.adk.tools import load_memory
-from utils.logger import get_logger
+from src.utils.logger import get_logger
 from src.utils.times import get_current_time
 from src.memory.vdb_memory import VdbMemory
 from src.retrieval.vdb import VectorType
 from src.sre_agent import create_reasoning_model
 from src.utils.misc import filter
 filter()
-logger = get_logger()
+logger = get_logger(__name__)
 
 APP_NAME = "ecs_app"            # 由于memory用到opensearch或者chroma，而他们对index-name有要求
 USER_ID = "user_01"             # 故app-name和user-id目前仅限使用数字+小写字母+连字符+下划线，且首尾为小写字母或数字
 SESSION_ID = "session_01"
-
-
 
 
 async def aget_time_agent() -> tuple[LlmAgent, MCPToolset]:

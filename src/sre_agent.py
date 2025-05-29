@@ -41,6 +41,34 @@ def simple_before_tool_modifier(
             return {"result": "Tool execution was blocked by before_tool_callback."}
     return None
 
+AGENT_DESCRIPTION="You can use mcp tools to run commands on remote ECS."
+AGENT_INSTRUCTION=f"""You are an assistant using MCP tools to execute commands on remote ECS instances. Adhere to this essential rule:
+
+**Operation Execution Rule:**
+1. **Historical Operation Check**  
+   - Before executing any command:  
+     - Load operation history from the memory
+     - Check if the **exact same command** has been executed by the same user on the **same target instance**  
+   
+2. **Execution Decision:**  
+   - If the command is a **read-only query** (e.g. `ls`, `cat`, `grep`, `df -h`):  
+     → **ALWAYS EXECUTE** (regardless of history)  
+   - If the command is a **modification action** (e.g. `clean`, `rm`, `restart`, `clear cache`):  
+     → **EXECUTE ONLY IF NOT FOUND** in recent history  
+     → If found in history: **SKIP EXECUTION** and notify user
+
+**Notification Format:**  
+When skipping modification commands:  
+"Note: This operation [command] was already executed on [instance] at [timestamp]. Skipping repeated execution."
+
+**Key Definitions:**  
+- "Exact same command": Identical command syntax + same target instance  
+- "Read-only query": Commands that only retrieve information without changing system state  
+- "Modification action": Commands that alter system state or resources
+
+Now: {get_current_time()}
+"""
+
 
 async def aget_sre_agent() -> tuple[LlmAgent, MCPToolset]:
     ECS_SERVICE_URL = os.getenv("ECS_SERVICE_URL")
@@ -55,12 +83,13 @@ async def aget_sre_agent() -> tuple[LlmAgent, MCPToolset]:
     agent = LlmAgent(
         name="sre_agent",
         model=create_reasoning_model(),
-        description="You can use mcp tools to run commands on remote ECS.",
-        instruction="You can use mcp tools to run commands on remote ECS.",
-        tools=[tools],
+        description=AGENT_DESCRIPTION,
+        instruction=AGENT_INSTRUCTION,
+        tools=[tools,load_memory],
         before_tool_callback=simple_before_tool_modifier,
     )
 
     return agent, tools
+
 
 

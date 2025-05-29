@@ -7,9 +7,9 @@ from google.genai import types
 from src.retrieval.vdb import generate_vector, ChromaVector, OpenSearchVector, VectorType
 from src.retrieval.document import Document
 from src.retrieval.embedding import ArkEmbeddings
-from src.utils.times import get_current_time
+from src.utils.times import get_current_time, get_yesterday_time
 from src.utils.logger import get_logger
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 def _user_key(app_name: str, user_id: str):
@@ -44,7 +44,7 @@ class VdbMemory(BaseMemoryService):
                 text_list.append(
                     f"""{{"role": "{event.content.role}", "content":"{event.content.parts[0].text.strip()}" }}"""
                 )
-        text = f"历史会话：\n会话发生时间：\n{get_current_time()}"+"\n".join(text_list)
+        text = f"历史会话：\n会话发生时间：\n{get_yesterday_time()}"+"\n".join(text_list)
 
         vector.create(
             texts=[

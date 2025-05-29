@@ -7,11 +7,13 @@ import json
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
-from utils.logger import get_logger
+from src.utils.logger import get_logger
+from src.memory.vdb_memory import VdbMemory
+from src.retrieval.vdb import VectorType
 from src.sre_agent import aget_sre_agent
 from src.utils.misc import filter
 filter()
-logger = get_logger()
+logger = get_logger(__name__)
 
 APP_NAME = "ecs_app"            # 由于memory用到opensearch或者chroma，而他们对index-name有要求
 USER_ID = "user_01"             # 故app-name和user-id目前仅限使用数字+小写字母+连字符+下划线，且首尾为小写字母或数字
@@ -26,12 +28,16 @@ async def run(prompts: list[str]):
     await session_service.create_session(
         app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID
     )
+    # set memory
+    memory_service = VdbMemory(vector_type=VectorType.CHROMA.value)
 
     runner = Runner(
         agent=agent,
         app_name=APP_NAME,
-        session_service=session_service
+        session_service=session_service,
+        memory_service=memory_service
     )
+    # for循环中的一次迭代，为一轮对话；完整for循环为一整个会话
     for prompt in prompts:
         message = types.Content(
             role="user", parts=[
@@ -49,14 +55,27 @@ async def run(prompts: list[str]):
             print()
         print("-"*130)
 
-
+    completed_session = await runner.session_service.get_session(
+        app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID
+    )
+    await memory_service.add_session_to_memory(completed_session)
     await tools.close()
 
     logger.info("Ending --------------------------------")
 
 if __name__ == "__main__":
+    # export PYTHONPATH=.
+    # python examples/main.py
+
+
+    # 第一轮会话
     prompts = [
 
     ]
+    asyncio.run(run(prompts))
 
+    # 第二轮对话
+    prompts = [
+
+    ]
     asyncio.run(run(prompts))
