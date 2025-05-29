@@ -17,7 +17,8 @@ loguru_logger.add(
     rotation="500 MB",
     retention="10 days",
     level="INFO",
-    format="{time} | {level} | {file}:{function}:{line} - {message}"
+    # format="{time} | {level} | {file}:{function}:{line} - {message}"
+    format="{time} | {level} | {message}"
 )
 
 def get_logger(module_name: str):

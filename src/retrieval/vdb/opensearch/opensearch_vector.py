@@ -141,8 +141,6 @@ class OpenSearchVector(KnowledgeBaseVector):
                     "vector": documents[i].vector,
                 },
             }
-            if self._client_config.aws_service not in ["aoss"]:
-                action["_id"] = uuid.uuid4().hex
             actions.append(action)
             pass
 

@@ -13,7 +13,7 @@ from google.adk.tools.mcp_tool.mcp_toolset import (
 )
 from google.adk.tools.tool_context import ToolContext
 from google.genai import types
-from google.adk.tools import load_memory
+from google.adk.tools.load_memory_tool import load_memory,load_memory_tool, LoadMemoryTool
 from src.tools.kb_tools import search_risk_operation
 from src.utils.times import get_current_time
 
@@ -73,7 +73,7 @@ Now: {get_current_time()}
 """
 
 
-async def aget_sre_agent() -> tuple[LlmAgent, MCPToolset]:
+async def aget_sre_agent(system_prompt: str=AGENT_INSTRUCTION) -> tuple[LlmAgent, MCPToolset]:
     ECS_SERVICE_URL = os.getenv("ECS_SERVICE_URL")
     assert ECS_SERVICE_URL is not None
 
@@ -87,12 +87,32 @@ async def aget_sre_agent() -> tuple[LlmAgent, MCPToolset]:
         name="sre_agent",
         model=create_reasoning_model(),
         description=AGENT_DESCRIPTION,
-        instruction=AGENT_INSTRUCTION,
-        tools=[tools,load_memory,search_risk_operation],
+        instruction=system_prompt,
+        tools=[tools,load_memory_tool,search_risk_operation],
         before_tool_callback=simple_before_tool_modifier,
     )
 
     return agent, tools
 
+async def aget_sre_agent2(system_prompt: str=AGENT_INSTRUCTION) -> tuple[LlmAgent, MCPToolset]:
+    ECS_SERVICE_URL = os.getenv("ECS_SERVICE_URL")
+    assert ECS_SERVICE_URL is not None
+
+    tools = MCPToolset(
+        connection_params=SseServerParams(
+            url=ECS_SERVICE_URL,
+        )
+    )
+
+    agent = LlmAgent(
+        name="sre_agent",
+        model=create_reasoning_model(),
+        description=AGENT_DESCRIPTION,
+        instruction=system_prompt,
+        tools=[tools,load_memory,LoadMemoryTool, search_risk_operation],
+        before_tool_callback=simple_before_tool_modifier,
+    )
+
+    return agent, tools
 
 

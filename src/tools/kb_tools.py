@@ -3,8 +3,10 @@ from google.adk.tools import FunctionTool
 from src.retrieval.document import Document
 from src.retrieval.vdb import generate_vector, OpenSearchVector, ChromaVector, VectorType
 from src.retrieval.embedding import ArkEmbeddings
-from src.utils.logger import get_logger
-logger = get_logger(__name__)
+# from src.utils.logger import get_logger
+# logger = get_logger(__name__)
+
+HIGH_RISK_COLLECTION_NAME = "high_risk_opter_02"
 
 def search_risk_operation(query: str) -> list[str]:
     """
@@ -14,7 +16,7 @@ def search_risk_operation(query: str) -> list[str]:
 
     vector = generate_vector(
         name=VectorType.CHROMA.value,
-        collection_name="high_risk_opter"
+        collection_name=HIGH_RISK_COLLECTION_NAME
     )
     embedding = ArkEmbeddings()
 
@@ -22,7 +24,7 @@ def search_risk_operation(query: str) -> list[str]:
         query_vector=embedding.embed_query(query),
         top_k=10
     )
-    logger.info(f"\n调用search_risk_operation函数，执行数据库搜索；搜索到的内容如下:\n{'\n'.join(res)}")
+    # logger.info(f"\n调用search_risk_operation函数，执行数据库搜索；搜索到的内容如下:\n{'\n'.join(res)}")
     return res
 
 
@@ -30,7 +32,7 @@ def prepare_data(data_path: str):
 
     vector = generate_vector(
         name=VectorType.CHROMA.value,
-        collection_name="high_risk_opter"
+        collection_name=HIGH_RISK_COLLECTION_NAME
     )
     if vector.collection_exist():
         return
