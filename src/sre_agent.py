@@ -47,7 +47,7 @@ AGENT_INSTRUCTION=f"""You are an assistant using MCP tools to execute commands o
 **Operation Execution Rule:**
 1. **Historical Operation Check**  
    - Before executing any command:  
-     - Load operation history from the memory
+     - Load operation history from the memory (load_memory tools) (MUST EVERY TIME)
      - Check if the **exact same command** has been executed by the same user on the **same target instance**  
    
 2. **Execution Decision:**  

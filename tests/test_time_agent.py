@@ -14,13 +14,13 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 from google.adk.tools import load_memory
-from src.utils.logger import get_logger
 from src.utils.times import get_current_time
 from src.memory.vdb_memory import VdbMemory
 from src.retrieval.vdb import VectorType
 from src.sre_agent import create_reasoning_model
 from src.utils.misc import filter
 filter()
+from src.utils.logger import get_logger
 logger = get_logger(__name__)
 
 APP_NAME = "ecs_app"            # 由于memory用到opensearch或者chroma，而他们对index-name有要求

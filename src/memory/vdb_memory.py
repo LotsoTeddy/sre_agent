@@ -44,6 +44,7 @@ class VdbMemory(BaseMemoryService):
                 text_list.append(
                     f"""{{"role": "{event.content.role}", "content":"{event.content.parts[0].text.strip()}" }}"""
                 )
+        # 因为会在第0次会话中触发，故设置为昨天，用以模拟长期记忆
         text = f"历史会话：\n会话发生时间：\n{get_yesterday_time()}"+"\n".join(text_list)
 
         vector.create(

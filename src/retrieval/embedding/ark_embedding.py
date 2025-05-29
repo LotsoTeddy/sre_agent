@@ -2,7 +2,8 @@ import os
 import requests
 import json
 from src.retrieval.embedding.base_embedding import Embeddings
-
+# from dotenv import load_dotenv
+# load_dotenv()
 
 class ArkEmbeddings(Embeddings):
     def __init__(
@@ -41,3 +42,7 @@ class ArkEmbeddings(Embeddings):
         return self.embed_documents([text])[0]
 
 
+if __name__ == "__main__":
+    ark = ArkEmbeddings()
+    x = ark.embed_query("123")
+    print(x)

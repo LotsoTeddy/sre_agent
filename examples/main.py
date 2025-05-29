@@ -7,19 +7,20 @@ import json
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
-from src.utils.logger import get_logger
+
 from src.memory.vdb_memory import VdbMemory
 from src.retrieval.vdb import VectorType
 from src.sre_agent import aget_sre_agent
 from src.utils.misc import filter
 filter()
+from src.utils.logger import get_logger
 logger = get_logger(__name__)
 
 APP_NAME = "ecs_app"            # 由于memory用到opensearch或者chroma，而他们对index-name有要求
 USER_ID = "user_01"             # 故app-name和user-id目前仅限使用数字+小写字母+连字符+下划线，且首尾为小写字母或数字
 SESSION_ID = "session_01"
 
-# 先不用管记忆的事儿
+
 
 async def run(prompts: list[str]):
     agent, tools = await aget_sre_agent()
@@ -29,7 +30,7 @@ async def run(prompts: list[str]):
         app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID
     )
     # set memory
-    memory_service = VdbMemory(vector_type=VectorType.CHROMA.value)
+    memory_service = VdbMemory(vector_type=VectorType.CHROMA.value)     # 暂时先用这个，因为chromadb不会持久化方便我测试
 
     runner = Runner(
         agent=agent,
@@ -68,13 +69,13 @@ if __name__ == "__main__":
     # python examples/main.py
 
 
-    # 第一轮会话
+    # 第0次会话，体现long term memory能力
     prompts = [
 
     ]
     asyncio.run(run(prompts))
 
-    # 第二轮对话
+    # 第二次对话
     prompts = [
 
     ]
