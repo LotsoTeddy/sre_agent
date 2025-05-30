@@ -8,8 +8,8 @@ from src.retrieval.vdb import generate_vector, ChromaVector, OpenSearchVector, V
 from src.retrieval.document import Document
 from src.retrieval.embedding import ArkEmbeddings
 from src.utils.times import get_current_time, get_yesterday_time
-# from src.utils.logger import get_logger
-# logger = get_logger(__name__)
+from src.utils.logger import get_logger
+logger = get_logger(__name__)
 
 
 def _user_key(app_name: str, user_id: str):
@@ -76,7 +76,7 @@ class VdbMemory(BaseMemoryService):
         response = SearchMemoryResponse()
         history = "这是通过知识库工具查询到的历史信息："+"\n".join(chunks)
 
-        # logger.debug(f"查询到的信息如下\n{history}")
+        # logger.debug(f"VdbMemory查询到的信息如下\n{history}")
         response.memories.append(
             MemoryEntry(
                 content=types.Content(

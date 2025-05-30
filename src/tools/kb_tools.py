@@ -3,8 +3,8 @@ from google.adk.tools import FunctionTool
 from src.retrieval.document import Document
 from src.retrieval.vdb import generate_vector, OpenSearchVector, ChromaVector, VectorType
 from src.retrieval.embedding import ArkEmbeddings
-# from src.utils.logger import get_logger
-# logger = get_logger(__name__)
+from src.utils.logger import get_logger
+logger = get_logger(__name__)
 
 HIGH_RISK_COLLECTION_NAME = "high_risk_opter_02"
 

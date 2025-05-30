@@ -5,6 +5,7 @@ from typing import Any, Dict
 
 from google.adk.agents import LlmAgent
 from google.adk.models.lite_llm import LiteLlm
+from google.adk.sessions import BaseSessionService
 from google.adk.tools.base_tool import BaseTool
 from google.adk.tools.mcp_tool.mcp_toolset import (
     MCPToolset,
@@ -14,6 +15,8 @@ from google.adk.tools.mcp_tool.mcp_toolset import (
 from google.adk.tools.tool_context import ToolContext
 from google.genai import types
 from google.adk.tools.load_memory_tool import load_memory,load_memory_tool, LoadMemoryTool
+from google.adk.memory.base_memory_service import BaseMemoryService
+from google.adk.runners import Runner
 from src.tools.kb_tools import search_risk_operation
 from src.utils.times import get_current_time
 
@@ -93,6 +96,42 @@ async def aget_sre_agent(system_prompt: str=AGENT_INSTRUCTION) -> tuple[LlmAgent
     )
 
     return agent, tools
+
+
+class RunProcessor:
+    def __init__(
+            self,
+            agent: LlmAgent,
+            app_name: str,
+            user_id: str,
+            session_id: str,
+            session_service: BaseSessionService,
+            memory_service: BaseMemoryService,
+    ):
+        self.app_name = app_name
+        self.user_id = user_id
+        self.session_id = session_id
+        self.runner = Runner(
+            agent=agent,
+            app_name=app_name,
+            session_service=session_service,
+            memory_service=memory_service
+        )
+
+    async def chat(self, prompt: str):
+        message = types.Content(role="user", parts=[types.Part(text=prompt)])
+        async for event in self.runner.run_async(
+                user_id=self.user_id, session_id=self.session_id, new_message=message
+        ):
+            if event.content.parts[0].text is not None and len(event.content.parts[0].text.strip()) > 0:
+                print(f"Model:{event.content.parts[0].text.strip()}")
+                user_input = input("User Input:")
+                if len(user_input.strip()) != 0:
+                    print(f"User:{user_input.strip()}")
+                    await self.chat(user_input)
+                else:
+                    break
+
 
 async def aget_sre_agent2(system_prompt: str=AGENT_INSTRUCTION) -> tuple[LlmAgent, MCPToolset]:
     ECS_SERVICE_URL = os.getenv("ECS_SERVICE_URL")
